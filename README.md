@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Interior Image Generator
 
 An AI-powered interior design visualization tool that transforms empty rooms into fully furnished spaces using DALL-E API. Upload a room photo and instantly generate different interior design styles while preserving the room's architectural elements.
@@ -96,3 +97,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details. 
+=======
+# Interior-image-generation
+An AI-powered interior design visualization tool that generates photorealistic room designs using DALL-E. Upload a room photo and transform it with different design styles while preserving architectural elements.
+>>>>>>> 8dd4b67d090f9ef67c65773b872505ba789148fb
