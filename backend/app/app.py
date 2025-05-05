@@ -19,7 +19,10 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app, resources={
     r"/api/*": {
-        "origins": ["http://localhost:3000", "http://localhost:3001"],
+        "origins": [
+            "https://interior-image-generation-bqurnl413-adityas-projects-4e6166af.vercel.app",
+            "http://localhost:3000"
+        ],
         "methods": ["GET", "POST", "OPTIONS"],
         "allow_headers": ["Content-Type"]
     }
