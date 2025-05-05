@@ -20,6 +20,7 @@ app = Flask(__name__)
 CORS(app, resources={
     r"/api/*": {
         "origins": [
+            "https://interior-image-generation-6shu9avb4-adityas-projects-4e6166af.vercel.app",
             "https://interior-image-generation-jrifen3zi-adityas-projects-4e6166af.vercel.app",
             "https://interior-image-generation-bqurnl413-adityas-projects-4e6166af.vercel.app",
             "http://localhost:3000"
