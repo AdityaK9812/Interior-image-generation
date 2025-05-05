@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 
+const apiBase = process.env.NEXT_PUBLIC_API_URL || 'https://interior-image-generation.onrender.com/api';
+
 const STYLE_OPTIONS = [
   { value: 'modern minimalist', label: 'Modern Minimalist' },
   { value: 'luxury classic', label: 'Luxury Classic' },
@@ -87,7 +89,7 @@ export default function Home() {
   const fetchGenerationHistory = async () => {
     setIsHistoryLoading(true);
     try {
-      const response = await fetch('http://localhost:5000/api/generations', {
+      const response = await fetch(`${apiBase}/generations`, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
@@ -125,7 +127,7 @@ export default function Home() {
       formData.append('style', selectedStyle);
       formData.append('roomType', selectedRoomType);
 
-      const response = await fetch('http://localhost:5000/api/generate-designs', {
+      const response = await fetch(`${apiBase}/generate-designs`, {
         method: 'POST',
         body: formData,
         mode: 'cors',
