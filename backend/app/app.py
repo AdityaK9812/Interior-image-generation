@@ -26,7 +26,7 @@ def vercel_origin(origin):
 
 CORS(app, resources={
     r"/api/*": {
-        "origins": vercel_origin,
+        "origins": r"^https://[a-zA-Z0-9-]+\.vercel\.app$",
         "methods": ["GET", "POST", "OPTIONS"],
         "allow_headers": ["Content-Type"]
     }
