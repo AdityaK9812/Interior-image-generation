@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import './App.css';
 
 const STYLE_OPTIONS = [
@@ -17,7 +17,6 @@ function App() {
   const [generatedDesign, setGeneratedDesign] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -94,14 +93,12 @@ function App() {
       <div className="upload-section">
         <input
           type="file"
-          ref={fileInputRef}
           onChange={handleFileSelect}
           accept="image/*"
           style={{ display: 'none' }}
         />
         <button 
           className="choose-file-btn"
-          onClick={() => fileInputRef.current?.click()}
         >
           Choose file
         </button>
