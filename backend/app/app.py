@@ -47,7 +47,7 @@ print(f"Storage directory: {STORAGE_DIR}")
 
 def get_absolute_url(filename):
     """Get absolute URL for a file"""
-    return f"http://localhost:5000/api/stored-image/{filename}"
+    return f"https://interior-image-generation.onrender.com/api/stored-image/{filename}"
 
 # Database initialization
 def init_db():
