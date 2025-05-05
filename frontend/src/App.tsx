@@ -48,11 +48,12 @@ function App() {
     setError(null);
 
     try {
+      const apiBase = process.env.NEXT_PUBLIC_API_URL || 'https://interior-image-generation.onrender.com/api';
       const formData = new FormData();
       formData.append('image', selectedFile);
       formData.append('style', selectedStyle);
 
-      const response = await fetch('http://localhost:5000/api/generate-designs', {
+      const response = await fetch(`${apiBase}/generate-designs`, {
         method: 'POST',
         body: formData,
       });
