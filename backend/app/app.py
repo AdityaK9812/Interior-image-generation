@@ -11,20 +11,21 @@ import requests
 from datetime import datetime
 import sqlite3
 from pathlib import Path
+import re
 
 # Load environment variables
 load_dotenv()
 
 # Initialize Flask app
 app = Flask(__name__)
+
+def vercel_origin(origin):
+    # Allow any subdomain of vercel.app
+    return bool(re.match(r"^https://[a-zA-Z0-9-]+\\.vercel\\.app$", origin))
+
 CORS(app, resources={
     r"/api/*": {
-        "origins": [
-            "https://interior-image-generation-6shu9avb4-adityas-projects-4e6166af.vercel.app",
-            "https://interior-image-generation-jrifen3zi-adityas-projects-4e6166af.vercel.app",
-            "https://interior-image-generation-bqurnl413-adityas-projects-4e6166af.vercel.app",
-            "http://localhost:3000"
-        ],
+        "origins": vercel_origin,
         "methods": ["GET", "POST", "OPTIONS"],
         "allow_headers": ["Content-Type"]
     }
