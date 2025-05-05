@@ -272,37 +272,39 @@ def create_mask(size=(1024, 1024)):
 
 def get_style_prompt(style, room_type):
     """Generate a style-specific prompt for DALL-E."""
-    # Base prompt that emphasizes preserving the room's architecture
-    base_prompt = "Keep the room EXACTLY as is - windows and doors must remain identical in size, style, and position. Do not modify ANY architectural elements (walls, ceiling, floor pattern, moldings). ONLY add furniture and decor. Keep room bright and maintain all lighting conditions. "
+    # Strong base prompt for photorealism and preservation
+    base_prompt = (
+        "Ultra-realistic, photorealistic, high-resolution interior photograph. "
+        "Keep the room EXACTLY as in the original photo: do not move, alter, or obscure the windows, doors, walls, ceiling, floor, or any architectural features. "
+        "No text, people, or signage. ONLY add beautiful, magazine-quality furniture and decor. Use natural lighting, realistic shadows, and textures. Maintain the original perspective and brightness. "
+    )
 
     # Room-specific furniture recommendations
     room_furniture = {
-        "living room": "sofa, coffee table, accent chairs, media console, area rug, throw pillows, wall art, side tables, floor lamp",
-        "bedroom": "bed with bedding, nightstands, dresser, reading lamp, area rug, curtains, wall art, accent chair, floor mirror",
-        "kitchen": "dining table with chairs, bar stools, pendant lights, kitchen island decor, fruit bowl, small appliances, wall shelves, kitchen textiles"
+        "living room": "a stylish sofa, elegant coffee table, accent chairs, designer media console, plush area rug, tasteful throw pillows, modern wall art, chic side tables, and a sculptural floor lamp",
+        "bedroom": "a luxurious bed with premium bedding, modern nightstands, a sleek dresser, designer reading lamps, a soft area rug, elegant curtains, curated wall art, a cozy accent chair, and a statement floor mirror",
+        "kitchen": "a contemporary dining table with designer chairs, modern bar stools, pendant lighting, a styled kitchen island, a fruit bowl, premium small appliances, floating wall shelves, and upscale kitchen textiles"
     }
 
     # Style-specific descriptions
     style_descriptions = {
-        "modern minimalist": f"Carefully add {room_furniture[room_type]} in a modern minimalist style. Clean lines, neutral colors, minimal decor, uncluttered spaces.",
-        
-        "luxury classic": f"Carefully add {room_furniture[room_type]} in a luxury classic style. Rich materials, elegant details, sophisticated color palette.",
-        
-        "scandinavian": f"Carefully add {room_furniture[room_type]} in Scandinavian style. Light woods, organic shapes, cozy textures, functional design.",
-        
-        "industrial": f"Carefully add {room_furniture[room_type]} in industrial style. Metal accents, raw materials, exposed elements, urban aesthetic.",
-        
-        "bohemian": f"Carefully add {room_furniture[room_type]} in bohemian style. Layered textiles, natural materials, eclectic mix, warm colors.",
-        
-        "contemporary": f"Carefully add {room_furniture[room_type]} in contemporary style. Current trends, comfortable pieces, balanced design."
+        "modern minimalist": f"Arrange {{furn}} in a modern minimalist style: clean lines, neutral palette, uncluttered, open, airy, and harmonious. Showcase simplicity and elegance.",
+        "luxury classic": f"Arrange {{furn}} in a luxury classic style: rich materials, elegant details, sophisticated color palette, timeless and refined, with a sense of grandeur.",
+        "scandinavian": f"Arrange {{furn}} in Scandinavian style: light woods, organic shapes, cozy textures, functional and inviting, with a bright and serene atmosphere.",
+        "industrial": f"Arrange {{furn}} in industrial style: metal accents, raw materials, exposed elements, urban loft feel, and a bold, modern look.",
+        "bohemian": f"Arrange {{furn}} in bohemian style: layered textiles, natural materials, eclectic mix, warm colors, and a relaxed, artistic vibe.",
+        "contemporary": f"Arrange {{furn}} in contemporary style: current trends, comfortable pieces, balanced design, and a fresh, stylish ambiance."
     }
 
-    # Combine base prompt with style-specific description
-    full_prompt = base_prompt + style_descriptions.get(style.lower(), "")
-    
-    # Ensure prompt doesn't exceed DALL-E's character limit (1000 characters)
-    if len(full_prompt) > 999:
-        full_prompt = full_prompt[:996] + "..."
+    # Compose the full prompt
+    furn = room_furniture[room_type]
+    style_text = style_descriptions.get(style.lower(), "")
+    style_text = style_text.replace("{furn}", furn)
+    full_prompt = base_prompt + style_text
+
+    # Ensure prompt doesn't exceed 900 characters
+    if len(full_prompt) > 900:
+        full_prompt = full_prompt[:897] + "..."
 
     return full_prompt
 
