@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 
 const STYLE_OPTIONS = [
@@ -38,7 +38,6 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [generationHistory, setGenerationHistory] = useState<GenerationHistory[]>([]);
   const [showHistory, setShowHistory] = useState(false);
-  const [imageLoadErrors, setImageLoadErrors] = useState<{[key: string]: boolean}>({});
   const [isHistoryLoading, setIsHistoryLoading] = useState(false);
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -85,14 +84,6 @@ export default function Home() {
     }
   }, [loading]);
 
-  const handleImageError = (imageUrl: string) => {
-    setImageLoadErrors(prev => ({
-      ...prev,
-      [imageUrl]: true
-    }));
-    console.error(`Failed to load image: ${imageUrl}`);
-  };
-
   const fetchGenerationHistory = async () => {
     setIsHistoryLoading(true);
     try {
@@ -111,8 +102,6 @@ export default function Home() {
       
       const data = await response.json();
       setGenerationHistory(data);
-      // Reset image load errors when fetching new history
-      setImageLoadErrors({});
     } catch (err) {
       console.error('Failed to fetch generation history:', err);
     } finally {
@@ -394,7 +383,6 @@ export default function Home() {
                               fill
                               className="object-cover"
                               unoptimized
-                              onError={() => handleImageError(generation.originalImage)}
                             />
                           </div>
                         </div>
@@ -407,7 +395,6 @@ export default function Home() {
                               fill
                               className="object-cover"
                               unoptimized
-                              onError={() => handleImageError(generation.generatedImage)}
                             />
                           </div>
                         </div>
