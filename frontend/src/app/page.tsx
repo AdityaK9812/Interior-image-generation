@@ -130,7 +130,7 @@ export default function Home() {
   const [loadingProgress, setLoadingProgress] = useState(0);
 
   useEffect(() => {
-    let interval: any;
+    let interval: ReturnType<typeof setInterval> | undefined;
     if (isLoading) {
       setLoadingProgress(0);
       interval = setInterval(() => {
