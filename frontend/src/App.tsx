@@ -12,7 +12,9 @@ const STYLE_OPTIONS = [
 ];
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    return localStorage.getItem('isLoggedIn') === 'true';
+  });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedStyle, setSelectedStyle] = useState(STYLE_OPTIONS[0].value);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -20,8 +22,14 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const handleLogin = (success: boolean) => {
+    setIsLoggedIn(success);
+    if (success) localStorage.setItem('isLoggedIn', 'true');
+    else localStorage.removeItem('isLoggedIn');
+  };
+
   if (!isLoggedIn) {
-    return <Login onLogin={setIsLoggedIn} />;
+    return <Login onLogin={handleLogin} />;
   }
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
