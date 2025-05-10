@@ -23,13 +23,7 @@ load_dotenv()
 app = Flask(__name__)
 
 # Ensure CORS is using the regex string for Vercel subdomains only
-CORS(app, resources={
-    r"/api/*": {
-        "origins": r"^https://[a-zA-Z0-9-]+\.vercel\.app$",
-        "methods": ["GET", "POST", "OPTIONS"],
-        "allow_headers": ["Content-Type"]
-    }
-})
+CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
 
 # Initialize OpenAI client
 api_key = os.getenv('OPENAI_API_KEY')
@@ -493,6 +487,13 @@ def login():
         return jsonify({'error': 'Invalid username or password'}), 401
 
     return jsonify({'message': 'Login successful'}), 200
+
+@app.after_request
+def add_cors_headers(response):
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type,Authorization"
+    response.headers["Access-Control-Allow-Methods"] = "GET,POST,OPTIONS"
+    return response
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
