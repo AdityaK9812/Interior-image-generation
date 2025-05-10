@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import './Login.css';
 import './globals.css';
 
@@ -90,14 +90,78 @@ function Login({ onLogin }: { onLogin: (success: boolean) => void }) {
   );
 }
 
+const STYLE_OPTIONS = [
+  { value: 'modern minimalist', label: 'Modern Minimalist' },
+  { value: 'luxury classic', label: 'Luxury Classic' },
+  { value: 'scandinavian', label: 'Scandinavian' },
+  { value: 'industrial', label: 'Industrial' },
+  { value: 'bohemian', label: 'Bohemian' },
+  { value: 'contemporary', label: 'Contemporary' }
+];
+
 export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedStyle, setSelectedStyle] = useState(STYLE_OPTIONS[0].value);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [generatedDesign, setGeneratedDesign] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (!isLoggedIn) {
     return <Login onLogin={setIsLoggedIn} />;
   }
 
-  // Main RoomCraft.AI UI (restored look)
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+      setGeneratedDesign(null); // Clear previous design
+      setError(null);
+    }
+  };
+
+  const handleStyleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedStyle(event.target.value);
+    setGeneratedDesign(null); // Clear previous design when style changes
+    setError(null);
+  };
+
+  const handleGenerateDesign = async () => {
+    if (!selectedFile) {
+      setError('Please select an image first');
+      return;
+    }
+    setIsLoading(true);
+    setError(null);
+    try {
+      const apiBase = process.env.NEXT_PUBLIC_API_URL || 'https://interior-image-generation.onrender.com/api';
+      const formData = new FormData();
+      formData.append('image', selectedFile);
+      formData.append('style', selectedStyle);
+      const response = await fetch(`${apiBase}/generate-designs`, {
+        method: 'POST',
+        body: formData,
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to generate design');
+      }
+      const data = await response.json();
+      setGeneratedDesign(data.url);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <main className="min-h-screen bg-black text-white">
       {/* Top Border Line */}
@@ -126,10 +190,10 @@ export default function Home() {
       {/* Main Content */}
       <div className="flex h-[calc(100vh-97px)]">
         {/* Left Panel - Room Type, Style, Upload */}
-        <div className="w-96 border-r border-gray-800 p-6 flex flex-col">
+        <div className="w-96 border-r border-gray-800 p-6 flex flex-col relative">
           <div className="mb-6">
             <label htmlFor="room-type-select" className="block text-sm uppercase tracking-wider text-gray-400 mb-2">Room Type</label>
-            <select className="block w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white">
+            <select className="block w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white" disabled>
               <option>Living Room</option>
               <option>Bedroom</option>
               <option>Kitchen</option>
@@ -137,37 +201,69 @@ export default function Home() {
           </div>
           <div className="mb-6">
             <label htmlFor="style-select" className="block text-sm uppercase tracking-wider text-gray-400 mb-2">Design Style</label>
-            <select className="block w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white">
-              <option>Modern Minimalist</option>
-              <option>Luxury Classic</option>
-              <option>Scandinavian</option>
-              <option>Industrial</option>
-              <option>Bohemian</option>
-              <option>Contemporary</option>
+            <select
+              className="block w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white"
+              value={selectedStyle}
+              onChange={handleStyleChange}
+            >
+              {STYLE_OPTIONS.map(option => (
+                <option key={option.value} value={option.value}>{option.label}</option>
+              ))}
             </select>
           </div>
           <div className="flex-grow">
-            <div className="h-72 flex flex-col items-center justify-center border-2 border-gray-700 border-dashed rounded-lg bg-gray-800/50">
-              <svg className="mx-auto h-12 w-12 text-gray-500" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
-                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-              <div className="flex text-sm text-gray-400 mt-2">
-                <span className="relative cursor-pointer rounded-md font-medium text-blue-400 hover:text-blue-300">Upload a file</span>
-              </div>
-              <p className="text-xs text-gray-500 mt-1">PNG, JPG, GIF up to 10MB</p>
+            <div
+              className="h-72 flex flex-col items-center justify-center border-2 border-gray-700 border-dashed rounded-lg bg-gray-800/50 cursor-pointer"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileSelect}
+                accept="image/*"
+                style={{ display: 'none' }}
+              />
+              {previewUrl ? (
+                <img src={previewUrl} alt="Preview" className="max-h-60 rounded mb-4" />
+              ) : (
+                <>
+                  <svg className="mx-auto h-12 w-12 text-gray-500" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  <div className="flex text-sm text-gray-400 mt-2">
+                    <span className="relative cursor-pointer rounded-md font-medium text-blue-400 hover:text-blue-300">Upload a file</span>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">PNG, JPG, GIF up to 10MB</p>
+                </>
+              )}
             </div>
+            {selectedFile && previewUrl && (
+              <button
+                className="generate-btn mt-4 w-full"
+                onClick={handleGenerateDesign}
+                disabled={isLoading}
+                style={{ background: '#2563eb', color: '#fff', fontWeight: 600, borderRadius: 6, padding: '0.75rem', fontSize: '1rem', marginTop: '1rem' }}
+              >
+                {isLoading ? 'Generating...' : 'Generate Design'}
+              </button>
+            )}
+            {error && <div className="error-message mt-2">{error}</div>}
+          </div>
+          {/* Logout Button at the bottom left */}
+          <div style={{ position: 'absolute', left: 0, bottom: 0, width: '100%', padding: '1rem' }}>
+            <button className="logout-btn w-full" style={{ background: '#e53e3e', color: '#fff', border: 'none', borderRadius: 6, padding: '0.5rem 1.5rem', fontSize: '1rem', fontWeight: 500, cursor: 'pointer', transition: 'background 0.2s' }} onClick={() => setIsLoggedIn(false)}>
+              Logout
+            </button>
           </div>
         </div>
         {/* Main Content Area - Generated Image */}
         <div className="flex-grow p-8 relative flex items-center justify-center">
-          <p className="text-xl text-gray-500">Generated design will appear here</p>
+          {generatedDesign ? (
+            <img src={generatedDesign} alt="Generated design" className="max-h-[600px] rounded shadow-lg" />
+          ) : (
+            <p className="text-xl text-gray-500">Generated design will appear here</p>
+          )}
         </div>
-      </div>
-      {/* Logout Button */}
-      <div style={{ position: 'fixed', top: 24, right: 24, zIndex: 50 }}>
-        <button className="logout-btn" style={{ background: '#e53e3e', color: '#fff', border: 'none', borderRadius: 6, padding: '0.5rem 1.5rem', fontSize: '1rem', fontWeight: 500, cursor: 'pointer', transition: 'background 0.2s' }} onClick={() => setIsLoggedIn(false)}>
-          Logout
-        </button>
       </div>
     </main>
   );
