@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './App.css';
+import Login from './app/Login';
 
 const STYLE_OPTIONS = [
   { value: 'modern minimalist', label: 'Modern Minimalist' },
@@ -11,12 +12,17 @@ const STYLE_OPTIONS = [
 ];
 
 function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedStyle, setSelectedStyle] = useState(STYLE_OPTIONS[0].value);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [generatedDesign, setGeneratedDesign] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  if (!isLoggedIn) {
+    return <Login onLogin={setIsLoggedIn} />;
+  }
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
