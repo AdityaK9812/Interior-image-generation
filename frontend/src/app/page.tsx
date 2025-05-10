@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import './Login.css';
 import './globals.css';
 
@@ -115,6 +115,23 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showHistory, setShowHistory] = useState(false);
+  const [history, setHistory] = useState<any[]>([]);
+  const [isHistoryLoading, setIsHistoryLoading] = useState(false);
+  const [loadingProgress, setLoadingProgress] = useState(0);
+
+  useEffect(() => {
+    let interval: any;
+    if (isLoading) {
+      setLoadingProgress(0);
+      interval = setInterval(() => {
+        setLoadingProgress((prev) => (prev < 90 ? prev + 10 : prev));
+      }, 400);
+    } else {
+      setLoadingProgress(100);
+    }
+    return () => clearInterval(interval);
+  }, [isLoading]);
 
   if (!isLoggedIn) {
     return <Login onLogin={setIsLoggedIn} />;
@@ -176,6 +193,20 @@ export default function Home() {
     }
   };
 
+  const fetchHistory = async () => {
+    setIsHistoryLoading(true);
+    try {
+      const apiBase = process.env.NEXT_PUBLIC_API_URL || 'https://interior-image-generation.onrender.com/api';
+      const res = await fetch(`${apiBase}/generations`);
+      const data = await res.json();
+      setHistory(data);
+    } catch (e) {
+      setHistory([]);
+    } finally {
+      setIsHistoryLoading(false);
+    }
+  };
+
   return (
     <main className="min-h-screen bg-black text-white">
       {/* Top Border Line */}
@@ -192,6 +223,7 @@ export default function Home() {
         <div className="absolute right-8 top-1/2 -translate-y-1/2">
           <button
             className="px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg hover:bg-gray-700 transition-colors text-sm flex items-center gap-2"
+            onClick={() => { setShowHistory(true); fetchHistory(); }}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -276,13 +308,98 @@ export default function Home() {
         </div>
         {/* Main Content Area - Generated Image */}
         <div className="flex-grow p-8 relative flex items-center justify-center">
-          {generatedDesign ? (
+          {isLoading ? (
+            <div className="w-full flex flex-col items-center justify-center">
+              <div className="w-96 max-w-full mb-4">
+                <div className="w-full h-3 bg-gray-800 rounded-full overflow-hidden">
+                  <div className="h-full bg-gradient-to-r from-blue-500 to-purple-600 transition-all duration-300" style={{ width: `${loadingProgress}%` }} />
+                </div>
+                <div className="text-right text-xs text-gray-400 mt-1">{loadingProgress}%</div>
+              </div>
+              <div className="text-lg text-gray-300">Generating your design...</div>
+            </div>
+          ) : generatedDesign ? (
             <img src={generatedDesign} alt="Generated design" className="max-h-[600px] rounded shadow-lg" />
           ) : (
             <p className="text-xl text-gray-500">Generated design will appear here</p>
           )}
         </div>
       </div>
+      {/* History Modal */}
+      {showHistory && (
+        <>
+          <div className="fixed inset-0 bg-black/80 z-40" onClick={() => setShowHistory(false)} />
+          <div className="fixed inset-x-0 top-0 bg-gray-900 border-b border-gray-800 p-6 shadow-2xl z-50 max-h-[80vh] overflow-y-auto">
+            <div className="max-w-7xl mx-auto">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold">Generation History</h2>
+                <button
+                  onClick={() => setShowHistory(false)}
+                  className="p-2 hover:bg-gray-800 rounded-full"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              {isHistoryLoading ? (
+                <div className="flex justify-center items-center py-12">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+                </div>
+              ) : history.length === 0 ? (
+                <div className="text-center py-12 text-gray-400">
+                  <p>No generations found. Try generating some designs!</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {history.map((generation) => (
+                    <div
+                      key={generation.id}
+                      className="bg-gray-800 rounded-lg overflow-hidden"
+                    >
+                      <div className="grid grid-cols-2 gap-2 p-4">
+                        <div>
+                          <p className="text-sm text-gray-400 mb-2">Original</p>
+                          <div className="relative aspect-square rounded-lg overflow-hidden bg-gray-700">
+                            <img
+                              src={generation.originalImage}
+                              alt="Original room"
+                              className="object-cover w-full h-full"
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-400 mb-2">Generated</p>
+                          <div className="relative aspect-square rounded-lg overflow-hidden bg-gray-700">
+                            <img
+                              src={generation.generatedImage}
+                              alt="Generated design"
+                              className="object-cover w-full h-full"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="p-4 border-t border-gray-700">
+                        <p className="text-sm text-gray-400">
+                          Style: <span className="text-white">{generation.style}</span>
+                        </p>
+                        <p className="text-sm text-gray-400">
+                          Room Type: <span className="text-white">{generation.roomType}</span>
+                        </p>
+                        <p className="text-sm text-gray-400">
+                          Generated: <span className="text-white">
+                            {new Date(generation.timestamp).toLocaleString()}
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </>
+      )}
     </main>
   );
 }
