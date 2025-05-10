@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, send_file, current_app
+from flask import Flask, request, jsonify, send_file, current_app, send_from_directory
 from flask_cors import CORS
 import os
 from dotenv import load_dotenv
@@ -12,6 +12,9 @@ from datetime import datetime
 import sqlite3
 from pathlib import Path
 import re
+from werkzeug.security import generate_password_hash, check_password_hash
+import time
+import uuid
 
 # Load environment variables
 load_dotenv()
@@ -433,6 +436,68 @@ def generate_designs():
                     os.unlink(temp_file)
             except Exception as e:
                 print(f"Error cleaning up temporary file {temp_file}: {str(e)}")
+
+# User management
+USERS_FILE = 'users.json'
+MAX_USERS = 5
+
+def load_users():
+    if os.path.exists(USERS_FILE):
+        with open(USERS_FILE, 'r') as f:
+            return json.load(f)
+    return []
+
+def save_users(users):
+    with open(USERS_FILE, 'w') as f:
+        json.dump(users, f)
+
+@app.route('/api/register', methods=['POST'])
+def register():
+    data = request.get_json()
+    username = data.get('username')
+    password = data.get('password')
+
+    if not username or not password:
+        return jsonify({'error': 'Username and password are required'}), 400
+
+    users = load_users()
+    
+    # Check if username already exists
+    if any(user['username'] == username for user in users):
+        return jsonify({'error': 'Username already exists'}), 400
+
+    # Check if maximum users reached
+    if len(users) >= MAX_USERS:
+        return jsonify({'error': 'Maximum number of users reached'}), 400
+
+    # Create new user
+    new_user = {
+        'username': username,
+        'password': generate_password_hash(password),
+        'created_at': datetime.now().isoformat()
+    }
+    
+    users.append(new_user)
+    save_users(users)
+    
+    return jsonify({'message': 'Registration successful'}), 201
+
+@app.route('/api/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    username = data.get('username')
+    password = data.get('password')
+
+    if not username or not password:
+        return jsonify({'error': 'Username and password are required'}), 400
+
+    users = load_users()
+    user = next((user for user in users if user['username'] == username), None)
+
+    if not user or not check_password_hash(user['password'], password):
+        return jsonify({'error': 'Invalid username or password'}), 401
+
+    return jsonify({'message': 'Login successful'}), 200
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
