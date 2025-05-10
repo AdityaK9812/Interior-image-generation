@@ -105,6 +105,15 @@ const ROOM_TYPES = [
   { value: 'kitchen', label: 'Kitchen' }
 ];
 
+interface Generation {
+  id: number;
+  originalImage: string;
+  generatedImage: string;
+  style: string;
+  roomType: string;
+  timestamp: string;
+}
+
 export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -116,7 +125,7 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showHistory, setShowHistory] = useState(false);
-  const [history, setHistory] = useState<any[]>([]);
+  const [history, setHistory] = useState<Generation[]>([]);
   const [isHistoryLoading, setIsHistoryLoading] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
 
@@ -198,9 +207,9 @@ export default function Home() {
     try {
       const apiBase = process.env.NEXT_PUBLIC_API_URL || 'https://interior-image-generation.onrender.com/api';
       const res = await fetch(`${apiBase}/generations`);
-      const data = await res.json();
+      const data: Generation[] = await res.json();
       setHistory(data);
-    } catch (e) {
+    } catch {
       setHistory([]);
     } finally {
       setIsHistoryLoading(false);
