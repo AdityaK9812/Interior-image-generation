@@ -12,9 +12,7 @@ const STYLE_OPTIONS = [
 ];
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(() => {
-    return localStorage.getItem('isLoggedIn') === 'true';
-  });
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // Always false on load
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedStyle, setSelectedStyle] = useState(STYLE_OPTIONS[0].value);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -24,13 +22,10 @@ function App() {
 
   const handleLogin = (success: boolean) => {
     setIsLoggedIn(success);
-    if (success) localStorage.setItem('isLoggedIn', 'true');
-    else localStorage.removeItem('isLoggedIn');
   };
 
   const handleLogout = () => {
     setIsLoggedIn(false);
-    localStorage.removeItem('isLoggedIn');
   };
 
   if (!isLoggedIn) {
