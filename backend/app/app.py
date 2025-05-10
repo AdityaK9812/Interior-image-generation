@@ -272,27 +272,26 @@ def get_style_prompt(style, room_type):
         "No text, people, or signage. ONLY add beautiful, magazine-quality furniture and decor. Use natural lighting, realistic shadows, and textures. Maintain the original perspective and brightness. "
     )
 
-    # Room-specific furniture recommendations
+    # Room-specific centerpiece and furniture
     room_furniture = {
-        "living room": "a stylish sofa, elegant coffee table, accent chairs, designer media console, plush area rug, tasteful throw pillows, modern wall art, chic side tables, a sculptural floor lamp, and other living room essentials",
-        "bedroom": "a luxurious bed with premium bedding, modern nightstands, a sleek dresser, designer reading lamps, a soft area rug, elegant curtains, curated wall art, a cozy accent chair, a statement floor mirror, and other bedroom essentials",
-        "kitchen": "a contemporary kitchen table, designer chairs, modern bar stools, pendant lighting, a styled kitchen island, a fruit bowl, premium small appliances, floating wall shelves, upscale kitchen textiles, and other kitchen essentials"
+        "living room": "A modern, realistic sofa as the main centerpiece, with a designer coffee table, accent chairs, media console, plush area rug, throw pillows, modern wall art, side tables, a sculptural floor lamp, and other living room essentials.",
+        "bedroom": "A realistic, luxurious bed as the main centerpiece, with premium bedding, modern nightstands, a sleek dresser, reading lamps, a soft area rug, elegant curtains, wall art, a cozy accent chair, a statement floor mirror, and other bedroom essentials.",
+        "kitchen": "A realistic kitchen table and appliances as the main centerpiece, with designer chairs, modern bar stools, pendant lighting, a styled kitchen island, fruit bowl, premium small appliances, floating wall shelves, upscale kitchen textiles, and other kitchen essentials."
     }
 
     # Style-specific descriptions
     style_descriptions = {
-        "modern minimalist": f"Arrange {{furn}} in a modern minimalist style: clean lines, neutral palette, uncluttered, open, airy, harmonious, and elegant.",
-        "luxury classic": f"Arrange {{furn}} in a luxury classic style: rich materials, elegant details, sophisticated color palette, timeless and refined, with a sense of grandeur.",
-        "scandinavian": f"Arrange {{furn}} in Scandinavian style: light woods, organic shapes, cozy textures, functional and inviting, with a bright and serene atmosphere.",
-        "industrial": f"Arrange {{furn}} in industrial style: metal accents, raw materials, exposed elements, urban loft feel, and a bold, modern look.",
-        "bohemian": f"Arrange {{furn}} in bohemian style: layered textiles, natural materials, eclectic mix, warm colors, and a relaxed, artistic vibe.",
-        "contemporary": f"Arrange {{furn}} in contemporary style: current trends, comfortable pieces, balanced design, and a fresh, stylish ambiance."
+        "modern minimalist": f"Arrange the furniture in a modern minimalist style: clean lines, neutral palette, uncluttered, open, airy, harmonious, and elegant.",
+        "luxury classic": f"Arrange the furniture in a luxury classic style: rich materials, elegant details, sophisticated color palette, timeless and refined, with a sense of grandeur.",
+        "scandinavian": f"Arrange the furniture in Scandinavian style: light woods, organic shapes, cozy textures, functional and inviting, with a bright and serene atmosphere.",
+        "industrial": f"Arrange the furniture in industrial style: metal accents, raw materials, exposed elements, urban loft feel, and a bold, modern look.",
+        "bohemian": f"Arrange the furniture in bohemian style: layered textiles, natural materials, eclectic mix, warm colors, and a relaxed, artistic vibe.",
+        "contemporary": f"Arrange the furniture in contemporary style: current trends, comfortable pieces, balanced design, and a fresh, stylish ambiance."
     }
 
     furn = room_furniture.get(room_type, "appropriate furniture and decor")
     style_text = style_descriptions.get(style.lower(), "")
-    style_text = style_text.replace("{furn}", furn)
-    full_prompt = base_prompt + style_text
+    full_prompt = base_prompt + furn + " " + style_text
 
     # Ensure prompt doesn't exceed 999 characters
     if len(full_prompt) > 999:
