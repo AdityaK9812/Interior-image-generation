@@ -99,10 +99,17 @@ const STYLE_OPTIONS = [
   { value: 'contemporary', label: 'Contemporary' }
 ];
 
+const ROOM_TYPES = [
+  { value: 'living room', label: 'Living Room' },
+  { value: 'bedroom', label: 'Bedroom' },
+  { value: 'kitchen', label: 'Kitchen' }
+];
+
 export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedStyle, setSelectedStyle] = useState(STYLE_OPTIONS[0].value);
+  const [selectedRoomType, setSelectedRoomType] = useState(ROOM_TYPES[0].value);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [generatedDesign, setGeneratedDesign] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -133,6 +140,12 @@ export default function Home() {
     setError(null);
   };
 
+  const handleRoomTypeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedRoomType(event.target.value);
+    setGeneratedDesign(null);
+    setError(null);
+  };
+
   const handleGenerateDesign = async () => {
     if (!selectedFile) {
       setError('Please select an image first');
@@ -145,6 +158,7 @@ export default function Home() {
       const formData = new FormData();
       formData.append('image', selectedFile);
       formData.append('style', selectedStyle);
+      formData.append('roomType', selectedRoomType);
       const response = await fetch(`${apiBase}/generate-designs`, {
         method: 'POST',
         body: formData,
@@ -166,6 +180,12 @@ export default function Home() {
     <main className="min-h-screen bg-black text-white">
       {/* Top Border Line */}
       <div className="h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
+      {/* Logout Button at top left */}
+      <div style={{ position: 'fixed', top: 24, left: 24, zIndex: 50 }}>
+        <button className="logout-btn w-full" style={{ background: '#e53e3e', color: '#fff', border: 'none', borderRadius: 6, padding: '0.5rem 1.5rem', fontSize: '1rem', fontWeight: 500, cursor: 'pointer', transition: 'background 0.2s' }} onClick={() => setIsLoggedIn(false)}>
+          Logout
+        </button>
+      </div>
       {/* Header */}
       <header className="px-8 py-6 border-b border-gray-800 relative">
         {/* History button positioned absolutely on the right */}
@@ -193,10 +213,14 @@ export default function Home() {
         <div className="w-96 border-r border-gray-800 p-6 flex flex-col relative">
           <div className="mb-6">
             <label htmlFor="room-type-select" className="block text-sm uppercase tracking-wider text-gray-400 mb-2">Room Type</label>
-            <select className="block w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white" disabled>
-              <option>Living Room</option>
-              <option>Bedroom</option>
-              <option>Kitchen</option>
+            <select
+              className="block w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white"
+              value={selectedRoomType}
+              onChange={handleRoomTypeChange}
+            >
+              {ROOM_TYPES.map(option => (
+                <option key={option.value} value={option.value}>{option.label}</option>
+              ))}
             </select>
           </div>
           <div className="mb-6">
@@ -248,12 +272,6 @@ export default function Home() {
               </button>
             )}
             {error && <div className="error-message mt-2">{error}</div>}
-          </div>
-          {/* Logout Button at the bottom left */}
-          <div style={{ position: 'absolute', left: 0, bottom: 0, width: '100%', padding: '1rem' }}>
-            <button className="logout-btn w-full" style={{ background: '#e53e3e', color: '#fff', border: 'none', borderRadius: 6, padding: '0.5rem 1.5rem', fontSize: '1rem', fontWeight: 500, cursor: 'pointer', transition: 'background 0.2s' }} onClick={() => setIsLoggedIn(false)}>
-              Logout
-            </button>
           </div>
         </div>
         {/* Main Content Area - Generated Image */}

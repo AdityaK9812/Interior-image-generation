@@ -278,20 +278,20 @@ def get_style_prompt(style, room_type):
     # Strong base prompt for photorealism and preservation
     base_prompt = (
         "Ultra-realistic, photorealistic, high-resolution interior photograph. "
-        "Keep the room EXACTLY as in the original photo: do not move, alter, or obscure the windows, doors, walls, ceiling, floor, or any architectural features. "
+        "Maintain the original room structure: do not move, alter, or obscure the windows, doors, walls, ceiling, floor, or any architectural features. "
         "No text, people, or signage. ONLY add beautiful, magazine-quality furniture and decor. Use natural lighting, realistic shadows, and textures. Maintain the original perspective and brightness. "
     )
 
     # Room-specific furniture recommendations
     room_furniture = {
-        "living room": "a stylish sofa, elegant coffee table, accent chairs, designer media console, plush area rug, tasteful throw pillows, modern wall art, chic side tables, and a sculptural floor lamp",
-        "bedroom": "a luxurious bed with premium bedding, modern nightstands, a sleek dresser, designer reading lamps, a soft area rug, elegant curtains, curated wall art, a cozy accent chair, and a statement floor mirror",
-        "kitchen": "a contemporary dining table with designer chairs, modern bar stools, pendant lighting, a styled kitchen island, a fruit bowl, premium small appliances, floating wall shelves, and upscale kitchen textiles"
+        "living room": "a stylish sofa, elegant coffee table, accent chairs, designer media console, plush area rug, tasteful throw pillows, modern wall art, chic side tables, a sculptural floor lamp, and other living room essentials",
+        "bedroom": "a luxurious bed with premium bedding, modern nightstands, a sleek dresser, designer reading lamps, a soft area rug, elegant curtains, curated wall art, a cozy accent chair, a statement floor mirror, and other bedroom essentials",
+        "kitchen": "a contemporary kitchen table, designer chairs, modern bar stools, pendant lighting, a styled kitchen island, a fruit bowl, premium small appliances, floating wall shelves, upscale kitchen textiles, and other kitchen essentials"
     }
 
     # Style-specific descriptions
     style_descriptions = {
-        "modern minimalist": f"Arrange {{furn}} in a modern minimalist style: clean lines, neutral palette, uncluttered, open, airy, and harmonious. Showcase simplicity and elegance.",
+        "modern minimalist": f"Arrange {{furn}} in a modern minimalist style: clean lines, neutral palette, uncluttered, open, airy, harmonious, and elegant.",
         "luxury classic": f"Arrange {{furn}} in a luxury classic style: rich materials, elegant details, sophisticated color palette, timeless and refined, with a sense of grandeur.",
         "scandinavian": f"Arrange {{furn}} in Scandinavian style: light woods, organic shapes, cozy textures, functional and inviting, with a bright and serene atmosphere.",
         "industrial": f"Arrange {{furn}} in industrial style: metal accents, raw materials, exposed elements, urban loft feel, and a bold, modern look.",
@@ -299,15 +299,14 @@ def get_style_prompt(style, room_type):
         "contemporary": f"Arrange {{furn}} in contemporary style: current trends, comfortable pieces, balanced design, and a fresh, stylish ambiance."
     }
 
-    # Compose the full prompt
-    furn = room_furniture[room_type]
+    furn = room_furniture.get(room_type, "appropriate furniture and decor")
     style_text = style_descriptions.get(style.lower(), "")
     style_text = style_text.replace("{furn}", furn)
     full_prompt = base_prompt + style_text
 
-    # Ensure prompt doesn't exceed 900 characters
-    if len(full_prompt) > 900:
-        full_prompt = full_prompt[:897] + "..."
+    # Ensure prompt doesn't exceed 999 characters
+    if len(full_prompt) > 999:
+        full_prompt = full_prompt[:996] + "..."
 
     return full_prompt
 
