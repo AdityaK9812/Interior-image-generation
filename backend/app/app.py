@@ -22,11 +22,7 @@ load_dotenv()
 # Initialize Flask app
 app = Flask(__name__)
 
-def vercel_origin(origin):
-    print("CORS check for origin:", origin)
-    # Allow any subdomain of vercel.app
-    return bool(re.match(r"^https://[a-zA-Z0-9-]+\\.vercel\\.app$", origin))
-
+# Ensure CORS is using the regex string for Vercel subdomains only
 CORS(app, resources={
     r"/api/*": {
         "origins": r"^https://[a-zA-Z0-9-]+\.vercel\.app$",
