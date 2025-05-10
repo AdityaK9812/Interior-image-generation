@@ -28,6 +28,11 @@ function App() {
     else localStorage.removeItem('isLoggedIn');
   };
 
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    localStorage.removeItem('isLoggedIn');
+  };
+
   if (!isLoggedIn) {
     return <Login onLogin={handleLogin} />;
   }
@@ -88,6 +93,9 @@ function App() {
 
   return (
     <div className="container">
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+        <button className="logout-btn" onClick={handleLogout}>Logout</button>
+      </div>
       <h1>Interior Design Generator</h1>
       
       <div className="style-selection">
